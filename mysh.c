@@ -9,7 +9,7 @@ int main(char** argv , int argc)
 
 	while(fgets(buffer , MAX_CHARS , stdin))
 	{
-		struct process * proc = process_input(buffer);
+//		struct process * proc = process_input(buffer);
 
 		struct process * exec = proc;
 
