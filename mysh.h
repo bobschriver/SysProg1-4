@@ -1,4 +1,6 @@
 struct process * process_input(char * buffer);
+void exec_processes( struct process *p );
+void do_child( struct process *p, int in_pipe[], int out_pipe[] );
 
 enum IO_REDIRECT
 {

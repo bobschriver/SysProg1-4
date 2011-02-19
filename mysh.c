@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/wait.h>
 #include "mysh.h"
 
 int main(char** argv , int argc)
@@ -168,6 +169,80 @@ struct process * process_input(char * buffer)
 
 void exec_processes( struct process *p )
 {
+	int	in_pipe[2];
+	int 	out_pipe[2];
+
+	struct process *proc = p;
+
+	// Create our two pipes
+	if( pipe( in_pipe ) < 0 || pipe( out_pipe ) )
+	{
+		perror( "PIPES" );
+		exit( EXIT_FAILURE );
+	}
 	
+	// Find our final process
+	while( proc->next_process != NULL )
+	{
+		proc = proc->next_process;
+	}
+
+
+	// Start our first child process ( which'll start the rest )
+	switch( fork() )
+	{
+		case -1:
+			perror( "FORK" );
+			exit( EXIT_FAILURE );
+		
+		case 0:
+			do_child( proc, in_pipe, out_pipe );
+			/* NOTREACHED */
+
+		default:
+			wait( NULL );
+	}
 
 }
+
+void do_child( struct process *p, int in_pipe[], int out_pipe[] )
+{
+	// If first process, don't need to fork
+	if( p->prev_process != NULL )
+	{
+
+		switch( fork() )
+		{
+			case -1:
+				perror( "FORK" );
+				_exit( EXIT_FAILURE );
+			
+			case 0:
+				do_child( p, out_pipe, in_pipe );
+				/* NOTREACHED */
+
+			default:
+				wait( NULL );
+		}
+
+	}
+
+	//Rebind pipes to stdin/stdout and wait before exec
+	wait( NULL );
+	
+	//Instead of exec, just print and exit to test
+	printf( "%s\n", p->name );
+	_exit( 0 );
+
+}
+
+
+
+
+
+
+
+
+
+
+
