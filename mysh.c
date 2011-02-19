@@ -40,8 +40,7 @@ struct process * process_input(char * buffer)
 
 		int num_args = 0;
 
-		while(arg != NULL
-			|| strcmp(arg , "|") != 0 || strcmp(arg , ">") != 0 || strcmp(arg , "<") != 0)
+		while(arg != NULL && (strcmp(arg , "|") != 0 || strcmp(arg , ">") != 0 || strcmp(arg , "<") != 0))
 		{
 			args[num_args] = arg;
 
