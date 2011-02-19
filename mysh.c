@@ -1,9 +1,13 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "mysh.h"
 
 int main(char** argv , int argc)
 {
-	char buffer[MAX_COMMANDS];
+	char buffer[MAX_CHARS];
 
-	while(fgets(buffer , MAX_COMMANDS , stdin))
+	while(fgets(buffer , MAX_CHARS , stdin))
 	{
 		struct process * proc = process_input(buffer);
 
@@ -48,13 +52,13 @@ struct process * process_input(char * buffer)
 		}
 
 		//If our parent is a program, and we've already got arguements, just skip this
-		if(curr->num_args == 0)
+		if(curr_parent->num_args == 0)
 		{
 
 			//If we don't have any arguements, deallocate the list and set it to null
 			if(num_args == 0)
 			{
-				dealloc(args);
+				free(args);
 				args = NULL;
 			}
 
@@ -84,7 +88,7 @@ struct process * process_input(char * buffer)
 				output_file->is_file = 1;
 
 				char * name = strtok(NULL , " ");
-				input_file->name = name;
+				output_file->name = name;
 
 				curr_parent->next_process = output_file;
 
@@ -94,12 +98,12 @@ struct process * process_input(char * buffer)
 				}
 				else
 				{
-					curr_parent->redirect_state = OUTPUT
+					curr_parent->redirect_state = OUTPUT;
 				}
 			}
-			else if(strcmp(arg "|") == 0)
+			else if(strcmp(arg, "|") == 0)
 			{
-				struct process * next_process = malloc(sizeof(struct patron));
+				struct process * next_process = malloc(sizeof(struct process));
 
 				next_process->is_file = 0;
 
@@ -112,11 +116,11 @@ struct process * process_input(char * buffer)
 
 				if(curr_parent->redirect_state == INPUT)
 				{
-					curr_parent->io_redirect = INPUT_AND_OUTPUT;
+					curr_parent->redirect_state = INPUT_AND_OUTPUT;
 				}
 				else
 				{
-					curr_parent->io_redirect = OUTPUT:
+					curr_parent->redirect_state = OUTPUT;
 				}
 
 				next_process->redirect_state = INPUT;
