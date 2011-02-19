@@ -11,12 +11,17 @@ int main(char** argv , int argc)
 	{
 		struct process * proc = process_input(buffer);
 
+		printf("%d\n" , proc);
+
 		struct process * exec = proc;
 
-		while(exec->next_process != NULL && exec->next_process->is_file)
+		while(exec->next_process != NULL && !exec->next_process->is_file)
 		{
+			printf("%s\n" , exec->name);
 			exec = exec->next_process;
 		}
+
+		printf("%s\n" , exec->name);
 	}
 }
 
@@ -40,15 +45,19 @@ struct process * process_input(char * buffer)
 
 		int num_args = 0;
 
-		while(arg != NULL && (strcmp(arg , "|") != 0 || strcmp(arg , ">") != 0 || strcmp(arg , "<") != 0))
+		while(arg != NULL && strcmp(arg , "|") != 0 && strcmp(arg , ">") != 0 && strcmp(arg , "<") != 0)
 		{
 			args[num_args] = arg;
+
+			printf("%s\n" , arg);
 
 			num_args++;
 			realloc(args , sizeof(char *) * (num_args + 1));
 
 			arg = strtok(NULL , " ");
 		}
+
+		printf("After args\n");
 
 		//If our parent is a program, and we've already got arguements, just skip this
 		if(curr_parent->num_args == 0)
@@ -75,6 +84,8 @@ struct process * process_input(char * buffer)
 				input_file->is_file = 1;
 				
 				char * name = strtok(NULL , " ");
+				printf("Input name %s\n" , name);
+				
 				input_file->name = name;
 
 				curr_parent->prev_process = input_file;
@@ -87,6 +98,8 @@ struct process * process_input(char * buffer)
 				output_file->is_file = 1;
 
 				char * name = strtok(NULL , " ");
+				printf("Output name %s\n" , name);
+
 				output_file->name = name;
 
 				curr_parent->next_process = output_file;
@@ -107,6 +120,7 @@ struct process * process_input(char * buffer)
 				next_process->is_file = 0;
 
 				char * name = strtok(NULL , " ");
+				printf("Output processes %s\n" , name);
 
 				next_process->name = name;
 
@@ -127,6 +141,12 @@ struct process * process_input(char * buffer)
 				curr_parent = next_process;
 			}
 		}
+		else
+		{
+			break;
+		}
+
+		printf("Curr Parent %s\n" , curr_parent->name);
 	 }
 
 	 return first_process;
