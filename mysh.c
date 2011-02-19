@@ -18,6 +18,12 @@ int main(char** argv , int argc)
 		while(exec->next_process != NULL && !exec->next_process->is_file)
 		{
 			printf("%s\n" , exec->name);
+			
+			for(int i = 0; i < exec->num_args; i++)
+			{
+				printf("Arg #%d: %s\n" , i , exec->args[i]);
+			}
+
 			exec = exec->next_process;
 		}
 
@@ -42,22 +48,24 @@ struct process * process_input(char * buffer)
 
 		//Read in the first arguement
 		char * arg = strtok(NULL , " ");
-
 		int num_args = 0;
 
 		while(arg != NULL && strcmp(arg , "|") != 0 && strcmp(arg , ">") != 0 && strcmp(arg , "<") != 0)
 		{
 			args[num_args] = arg;
 
-			printf("%s\n" , arg);
-
 			num_args++;
-			realloc(args , sizeof(char *) * (num_args + 1));
+			args = realloc(args , sizeof(char *) * (num_args + 1));
 
 			arg = strtok(NULL , " ");
 		}
 
 		printf("After args\n");
+
+		for(int i = 0; i < num_args; i ++)
+		{
+			printf("%d: %s\n" , i , args[i]);
+		}
 
 		//If our parent is a program, and we've already got arguements, just skip this
 		if(curr_parent->num_args == 0)
@@ -69,9 +77,14 @@ struct process * process_input(char * buffer)
 				free(args);
 				args = NULL;
 			}
-
+			
 			curr_parent->num_args = num_args;
 			curr_parent->args = args;
+		}
+
+		for(int i = 0; i < curr_parent->num_args; i++)
+		{
+			printf("%d: %s\n" , i , curr_parent->args[i]);
 		}
 		
 		if(arg != NULL)
@@ -147,7 +160,8 @@ struct process * process_input(char * buffer)
 		}
 
 		printf("Curr Parent %s\n" , curr_parent->name);
-	 }
+	 	
+	}
 
 	 return first_process;
 }
