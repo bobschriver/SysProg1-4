@@ -51,7 +51,7 @@ struct process * process_input(char * buffer)
 		char ** args = malloc(sizeof(char*));
 
 		//Read in the first arguement
-		char * arg = strtok(NULL , " ");
+		char * arg = strdup(curr_parent->name);
 		int num_args = 0;
 
 		while(arg != NULL && strcmp(arg , "|") != 0 && strcmp(arg , ">") != 0 && strcmp(arg , "<") != 0)
@@ -72,25 +72,16 @@ struct process * process_input(char * buffer)
 		}
 
 		//If our parent is a program, and we've already got arguements, just skip this
-		if(curr_parent->num_args == 0)
+		if(curr_parent->num_args != 0)
 		{
 
-			//If we don't have any arguements, deallocate the list and set it to null
-			if(num_args == 0)
-			{
-				free(args);
-				args = NULL;
-			}
+			args = realloc(args , sizeof(char *) * (num_args + 1));
+			args[num_args + 1] = NULL;	
 			
 			curr_parent->num_args = num_args;
 			curr_parent->args = args;
 		}
 
-		for(int i = 0; i < curr_parent->num_args; i++)
-		{
-			printf("%d: %s\n" , i , curr_parent->args[i]);
-		}
-		
 		if(arg != NULL)
 		{
 			struct process * next_process = malloc(sizeof(struct process));
