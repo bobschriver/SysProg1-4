@@ -37,8 +37,20 @@ int main(char** argv , int argc)
 		}
 
 		printf("%s\n" , exec->name);
+		
+		//fork to exec processes, so we can wait on this single child
+		switch( fork() )
+		{
+			case -1:
+				perror( "FORK" );
+				exit( EXIT_FAILURE );
+			case 0:
+				exec_processes( exec );
+				_exit(0);
+			default:
+				wait(NULL);
+		}
 
-		exec_processes( exec );
 	}
 }
 
