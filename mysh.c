@@ -74,7 +74,7 @@ struct process * process_input(char * buffer)
 		}
 
 		//If our parent is a program, and we've already got arguements, just skip this
-		if(curr_parent->num_args != 0)
+		if(curr_parent->num_args == 0)
 		{
 
 			args = realloc(args , sizeof(char *) * (num_args + 1));
@@ -222,6 +222,12 @@ void do_child( struct process *p, int in_pipe[], int out_pipe[] )
 		close( out_pipe[ 1 ] );
 	}
 
+	printf( "Proc name: %s\n", p->name );	
+
+	for( int i = 0; i < p->num_args; i++)
+	{
+		printf( "Arg#%d: %s\n", i, p->args[i] );
+	}
 	execvp( p->name, p->args );
 	perror( "EXEC" );
 	_exit( EXIT_FAILURE );
