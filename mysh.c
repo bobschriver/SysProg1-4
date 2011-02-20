@@ -21,10 +21,17 @@ int main(char** argv , int argc)
 		{
 			printf("%s\n" , exec->name);
 			
-			for(int i = 0; i < exec->num_args; i++)
+			/*for(int i = 0; i < exec->num_args; i++)
 			{
 				printf("Arg #%d: %s\n" , i , exec->args[i]);
-			}
+				
+				for(int j = 0; j < 6; j ++)
+				{
+					printf("%o " , exec->args[i][j]);
+				}
+
+				printf("\n");
+			}*/
 
 			exec = exec->next_process;
 		}
@@ -63,15 +70,10 @@ struct process * process_input(char * buffer)
 			num_args++;
 			args = realloc(args , sizeof(char *) * (num_args + 1));
 
-			arg = strtok(NULL , " ");
+			arg = strtok(NULL , " \n");
 		}
 
-		printf("After args\n");
-
-		for(int i = 0; i < num_args; i ++)
-		{
-			printf("%d: %s\n" , i , args[i]);
-		}
+		printf("69");
 
 		//If our parent is a program, and we've already got arguements, just skip this
 		if(curr_parent->num_args == 0)
@@ -83,6 +85,8 @@ struct process * process_input(char * buffer)
 			curr_parent->num_args = num_args;
 			curr_parent->args = args;
 		}
+
+		printf("82");
 
 		if(arg != NULL)
 		{
