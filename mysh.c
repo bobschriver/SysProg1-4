@@ -172,71 +172,37 @@ struct process * process_input(char * buffer)
 
 void exec_processes( struct process *p )
 {
-	int	in_pipe[2];
-	int 	out_pipe[2];
-
 	struct process *proc = p;
+	int in_pipe[2];
+	int out_pipe[2];
 
-	// Create our two pipes
-	if( pipe( in_pipe ) < 0 || pipe( out_pipe ) )
-	{
-		perror( "PIPES" );
-		exit( EXIT_FAILURE );
-	}
-	
 	// Find our final process
-	while( proc->next_process != NULL )
+	while( proc->next_process != NULL && !proc->next_process->is_file )
 	{
 		proc = proc->next_process;
 	}
 
-
-	// Start our first child process ( which'll start the rest )
-	switch( fork() )
+	// For each process, fork and create any necessary pipes
+	while( proc->prev_process != NULL && !proc->prev_process->is_file )
 	{
-		case -1:
-			perror( "FORK" );
-			exit( EXIT_FAILURE );
+		//the old out_pipe is the new in_pipe
+		switch( fork() )
+		{
+			case -1:
+				perror( "FORK" );
+				exit( EXIT_FAILURE );
 		
-		case 0:
-			do_child( proc, in_pipe, out_pipe );
-			/* NOTREACHED */
-
-		default:
-			wait( NULL );
+			case 0:
+				do_child( proc, in_pipe, out_pipe );
+				/* NOTREACHED */
+		}
 	}
 
 }
 
 void do_child( struct process *p, int in_pipe[], int out_pipe[] )
 {
-	// If first process, don't need to fork
-	if( p->prev_process != NULL )
-	{
-
-		switch( fork() )
-		{
-			case -1:
-				perror( "FORK" );
-				_exit( EXIT_FAILURE );
-			
-			case 0:
-				do_child( p->prev_process, out_pipe, in_pipe );
-				/* NOTREACHED */
-
-			default:
-				wait( NULL );
-		}
-
-	}
-
-	//Rebind pipes to stdin/stdout and wait before exec
-	wait( NULL );
 	
-	//Instead of exec, just print and exit to test
-	printf( "Child Process: %s\n", p->name );
-	_exit( 0 );
-
 }
 
 
