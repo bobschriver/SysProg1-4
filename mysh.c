@@ -9,17 +9,20 @@ int main(char** argv , int argc)
 
 	char buffer[MAX_CHARS];
 
+	printf( "\n? " );
 	while(fgets(buffer , MAX_CHARS , stdin))
 	{
+		printf( buffer );
+
 		struct process * proc = process_input(buffer);
 
-		printf("%d\n" , proc);
+//		printf("%d\n" , proc);
 
 		struct process * exec = proc;
 
 		while(exec->next_process != NULL && !exec->next_process->is_file)
 		{
-			printf("%s\n" , exec->name);
+//			printf("%s\n" , exec->name);
 			
 			/*for(int i = 0; i < exec->num_args; i++)
 			{
@@ -36,7 +39,7 @@ int main(char** argv , int argc)
 			exec = exec->next_process;
 		}
 
-		printf("%s\n" , exec->name);
+//		printf("%s\n" , exec->name);
 		
 		//fork to exec processes, so we can wait on this single child
 		switch( fork() )
@@ -48,9 +51,11 @@ int main(char** argv , int argc)
 				exec_processes( exec );
 				_exit(0);
 			default:
-				wait(NULL);
 		}
-
+		
+		wait( NULL );
+		
+		printf( "\n? " );
 	}
 }
 
@@ -85,7 +90,7 @@ struct process * process_input(char * buffer)
 			arg = strtok(NULL , " \n");
 		}
 
-		printf("69");
+//		printf("69");
 
 		//If our parent is a program, and we've already got arguements, just skip this
 		if(curr_parent->num_args == 0)
@@ -98,7 +103,7 @@ struct process * process_input(char * buffer)
 			curr_parent->args = args;
 		}
 
-		printf("82");
+//		printf("82");
 
 		if(arg != NULL)
 		{
@@ -110,7 +115,7 @@ struct process * process_input(char * buffer)
 				input_file->is_file = 1;
 				
 				char * name = strtok(NULL , " \n");
-				printf("Input name %s\n" , name);
+//				printf("Input name %s\n" , name);
 				
 				input_file->name = name;
 
@@ -124,7 +129,7 @@ struct process * process_input(char * buffer)
 				output_file->is_file = 1;
 
 				char * name = strtok(NULL , " \n");
-				printf("Output name %s\n" , name);
+//				printf("Output name %s\n" , name);
 
 				output_file->name = name;
 
@@ -146,7 +151,7 @@ struct process * process_input(char * buffer)
 				next_process->is_file = 0;
 
 				char * name = strtok(NULL , " \n");
-				printf("Output processes %s\n" , name);
+//				printf("Output processes %s\n" , name);
 
 				next_process->name = name;
 
@@ -172,7 +177,7 @@ struct process * process_input(char * buffer)
 			break;
 		}
 
-		printf("Curr Parent %s\n" , curr_parent->name);
+//		printf("Curr Parent %s\n" , curr_parent->name);
 	 	
 	}
 
@@ -249,11 +254,11 @@ void do_child( struct process *p, int in_pipe[], int out_pipe[] )
 	}
 
 
-	printf( "Proc name: %s\n", p->name );	
+//	printf( "Proc name: %s\n", p->name );	
 
 	for( int i = 0; i < p->num_args; i++)
 	{
-		printf( "Arg#%d: %s\n", i, p->args[i] );
+//		printf( "Arg#%d: %s\n", i, p->args[i] );
 	}
 	execvp( p->name, p->args );
 	perror( "EXEC" );
