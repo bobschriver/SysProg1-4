@@ -6,6 +6,7 @@
 
 int main(char** argv , int argc)
 {
+
 	char buffer[MAX_CHARS];
 
 	while(fgets(buffer , MAX_CHARS , stdin))
@@ -29,6 +30,8 @@ int main(char** argv , int argc)
 		}
 
 		printf("%s\n" , exec->name);
+
+		exec_processes( exec );
 	}
 }
 
@@ -218,7 +221,7 @@ void do_child( struct process *p, int in_pipe[], int out_pipe[] )
 				_exit( EXIT_FAILURE );
 			
 			case 0:
-				do_child( p, out_pipe, in_pipe );
+				do_child( p->prev_process, out_pipe, in_pipe );
 				/* NOTREACHED */
 
 			default:
@@ -231,7 +234,7 @@ void do_child( struct process *p, int in_pipe[], int out_pipe[] )
 	wait( NULL );
 	
 	//Instead of exec, just print and exit to test
-	printf( "%s\n", p->name );
+	printf( "Child Process: %s\n", p->name );
 	_exit( 0 );
 
 }
