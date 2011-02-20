@@ -22,7 +22,7 @@ int main(char** argv , int argc)
 
 		while(exec->next_process != NULL && !exec->next_process->is_file)
 		{
-//			printf("%s\n" , exec->name);
+			//printf("%s: %d\n" , exec->name , exec);
 			
 			/*for(int i = 0; i < exec->num_args; i++)
 			{
@@ -39,6 +39,8 @@ int main(char** argv , int argc)
 			exec = exec->next_process;
 		}
 
+		//printf("42: %s curr: %d next: %d prev: %d\n" , exec->name , exec ,  exec->next_process , exec->prev_process);
+
 //		printf("%s\n" , exec->name);
 		
 		//fork to exec processes, so we can wait on this single child
@@ -51,10 +53,24 @@ int main(char** argv , int argc)
 				exec_processes( exec );
 				_exit(0);
 			default:
+				wait(NULL);
 		}
-		
-		wait( NULL );
-		
+
+		if(exec->next_process != NULL)
+		{
+			//printf("61 : %s curr: %d next %d prev: %d\n" , exec->next_process->name, exec->next_process , exec->next_process->next_process , exec->next_process->prev_process);
+			free(exec->next_process);
+		}
+
+		while(exec != NULL)
+		{
+			struct process * free_process = exec;
+			//printf("65 : %s curr: %d next: %d prev: %d\n" , exec->name , exec , exec->next_process , exec->prev_process);
+			exec = exec->prev_process;
+			free(free_process);
+		}
+
+		memset(buffer , 0 , MAX_CHARS);
 		printf( "\n? " );
 	}
 }
@@ -97,7 +113,7 @@ struct process * process_input(char * buffer)
 		{
 
 			args = realloc(args , sizeof(char *) * (num_args + 1));
-			args[num_args + 1] = NULL;	
+			args[num_args] = NULL;	
 			
 			curr_parent->num_args = num_args;
 			curr_parent->args = args;
@@ -107,11 +123,15 @@ struct process * process_input(char * buffer)
 
 		if(arg != NULL)
 		{
-			struct process * next_process = malloc(sizeof(struct process));
+			/*struct process * next_process = malloc(sizeof(struct process));
+			memset(next_process , 0 , sizeof(struct process)); 
+			*/
 
 			if(strcmp(arg , "<") == 0)
 			{
 				struct process * input_file = malloc(sizeof(struct process));
+				memset(input_file , 0 , sizeof(struct process));
+
 				input_file->is_file = 1;
 				
 				char * name = strtok(NULL , " \n");
@@ -126,6 +146,8 @@ struct process * process_input(char * buffer)
 			else if(strcmp(arg , ">") == 0)
 			{
 				struct process * output_file = malloc(sizeof(struct process));
+				memset(output_file , 0 , sizeof(struct process));
+
 				output_file->is_file = 1;
 
 				char * name = strtok(NULL , " \n");
@@ -147,6 +169,7 @@ struct process * process_input(char * buffer)
 			else if(strcmp(arg, "|") == 0)
 			{
 				struct process * next_process = malloc(sizeof(struct process));
+				memset(next_process , 0 , sizeof(struct process));
 
 				next_process->is_file = 0;
 
@@ -217,8 +240,13 @@ void exec_processes( struct process *p )
 				exit( EXIT_FAILURE );
 		
 			case 0:
+				//printf("doing child\n");
 				do_child( proc, in_pipe, out_pipe );
 				/* NOTREACHED */
+			default:
+				//fflush(NULL);
+				//printf("Waiting for Child\n");
+				sleep( 1 );
 		}
 
 		proc = proc->prev_process;
@@ -254,12 +282,12 @@ void do_child( struct process *p, int in_pipe[], int out_pipe[] )
 	}
 
 
-//	printf( "Proc name: %s\n", p->name );	
+	//printf( "Proc name: %s\n", p->name );	
 
-	for( int i = 0; i < p->num_args; i++)
+	/*for( int i = 0; i < p->num_args; i++)
 	{
 //		printf( "Arg#%d: %s\n", i, p->args[i] );
-	}
+	}*/
 	execvp( p->name, p->args );
 	perror( "EXEC" );
 	_exit( EXIT_FAILURE );
