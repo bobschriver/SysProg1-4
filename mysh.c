@@ -183,9 +183,19 @@ void exec_processes( struct process *p )
 	}
 
 	// For each process, fork and create any necessary pipes
-	while( proc->prev_process != NULL && !proc->prev_process->is_file )
+	while( proc != NULL && !proc->is_file )
 	{
-		//the old out_pipe is the new in_pipe
+
+		//the old in-pipe is the new out-pipe
+		out_pipe[0] = in_pipe[0];
+		out_pipe[1] = in_pipe[1];
+
+		if( pipe( in_pipe ) < 0 )
+		{
+			perror( "PIPE" );
+			exit( EXIT_FAILURE );
+		}
+
 		switch( fork() )
 		{
 			case -1:
@@ -196,13 +206,32 @@ void exec_processes( struct process *p )
 				do_child( proc, in_pipe, out_pipe );
 				/* NOTREACHED */
 		}
+
+		proc = proc->prev_process;
 	}
 
 }
 
 void do_child( struct process *p, int in_pipe[], int out_pipe[] )
 {
-	
+	//remap FDs if necessary
+	if( p->prev_process != NULL && !p->prev_process->is_file )
+	{
+		close( 0 );
+		dup( in_pipe[ 0 ] );
+		close( in_pipe[ 0 ] );
+	}
+
+	if( p->next_process != NULL && !p->next_process->is_file )
+	{
+		close( 1 );
+		dup( out_pipe[ 1 ] );
+		close( out_pipe[ 1 ] );
+	}
+
+	execvp( p->name, p->args );
+	perror( "EXEC" );
+	_exit( EXIT_FAILURE );
 }
 
 
