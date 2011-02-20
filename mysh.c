@@ -40,6 +40,8 @@ struct process * process_input(char * buffer)
 	struct process * first_process = malloc(sizeof(struct process));
 	struct process * curr_parent = first_process;
 
+	memset(first_process , 0 , sizeof(struct process));
+
 	char * program_name = strtok(buffer  , " ");
 	curr_parent->name = program_name;
 	curr_parent->num_args = 0;
