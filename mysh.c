@@ -219,12 +219,23 @@ void do_child( struct process *p, int in_pipe[], int out_pipe[] )
 		close( in_pipe[ 0 ] );
 	}
 
+	if( p->prev_process != NULL && p->prev_process->is_file )
+	{
+		freopen( p->prev_process->name, "r", stdin );
+	}
+
 	if( p->next_process != NULL && !p->next_process->is_file )
 	{
 		close( 1 );
 		dup( out_pipe[ 1 ] );
 		close( out_pipe[ 1 ] );
 	}
+
+	if( p->next_process != NULL && p->next_process->is_file )
+	{
+		freopen( p->next_process->name, "w", stdout );
+	}
+
 
 	printf( "Proc name: %s\n", p->name );	
 
