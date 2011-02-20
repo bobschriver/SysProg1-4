@@ -49,7 +49,7 @@ struct process * process_input(char * buffer)
 
 	memset(first_process , 0 , sizeof(struct process));
 
-	char * program_name = strtok(buffer  , " ");
+	char * program_name = strtok(buffer  , " \n");
 	curr_parent->name = program_name;
 	curr_parent->num_args = 0;
 
@@ -97,7 +97,7 @@ struct process * process_input(char * buffer)
 				struct process * input_file = malloc(sizeof(struct process));
 				input_file->is_file = 1;
 				
-				char * name = strtok(NULL , " ");
+				char * name = strtok(NULL , " \n");
 				printf("Input name %s\n" , name);
 				
 				input_file->name = name;
@@ -111,7 +111,7 @@ struct process * process_input(char * buffer)
 				struct process * output_file = malloc(sizeof(struct process));
 				output_file->is_file = 1;
 
-				char * name = strtok(NULL , " ");
+				char * name = strtok(NULL , " \n");
 				printf("Output name %s\n" , name);
 
 				output_file->name = name;
@@ -133,7 +133,7 @@ struct process * process_input(char * buffer)
 
 				next_process->is_file = 0;
 
-				char * name = strtok(NULL , " ");
+				char * name = strtok(NULL , " \n");
 				printf("Output processes %s\n" , name);
 
 				next_process->name = name;
