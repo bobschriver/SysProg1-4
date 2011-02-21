@@ -12,6 +12,8 @@ int main(char** argv , int argc)
 	printf( "\n? " );
 	while(fgets(buffer , MAX_CHARS , stdin))
 	{
+		
+
 		printf( buffer );
 
 		struct process * proc = process_input(buffer);
@@ -84,7 +86,15 @@ int main(char** argv , int argc)
 		fsync(stdin);
 		fflush(stdin);
 
+		
 		memset(buffer , 0 , MAX_CHARS);
+		
+		char test_buffer[MAX_CHARS];
+
+		fgets(test_buffer , MAX_CHARS , stdin);
+
+		printf(test_buffer);
+
 		printf( "\n? " );
 	}
 }
@@ -293,8 +303,10 @@ void do_child( struct process *p, int in_pipe[], int out_pipe[] )
 
 	if( p->prev_process != NULL && p->prev_process->is_file )
 	{
+		close( in_pipe[1] );
 		printf("%s\n" , p->prev_process->name);
 		freopen( p->prev_process->name, "r", stdin );
+		close( in_pipe[0]);
 	}
 
 	if( p->next_process != NULL && !p->next_process->is_file )
@@ -307,8 +319,10 @@ void do_child( struct process *p, int in_pipe[], int out_pipe[] )
 
 	if( p->next_process != NULL && p->next_process->is_file )
 	{
+		close( out_pipe[0] );
 		printf("%s\n" , p->next_process->name);
 		freopen( p->next_process->name, "a", stdout );
+		close( out_pipe[1]);
 	}
 
 
