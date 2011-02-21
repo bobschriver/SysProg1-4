@@ -20,8 +20,16 @@ int main(char** argv , int argc)
 
 		struct process * exec = proc;
 
+		/*if(exec->prev_process != NULL)
+			exec = exec->prev_process;
+*/
+
 		while(exec->next_process != NULL && !exec->next_process->is_file)
 		{
+			
+			
+
+			printf("28: %s curr: %d next: %d prev: %d\n" , exec->name , exec ,  exec->next_process , exec->prev_process);
 			//printf("%s: %d\n" , exec->name , exec);
 			
 			/*for(int i = 0; i < exec->num_args; i++)
@@ -50,7 +58,7 @@ int main(char** argv , int argc)
 				perror( "FORK" );
 				exit( EXIT_FAILURE );
 			case 0:
-				exec_processes( exec );
+				exec_processes( proc );
 				_exit(0);
 			default:
 				wait(NULL);
@@ -69,6 +77,12 @@ int main(char** argv , int argc)
 			exec = exec->prev_process;
 			free(free_process);
 		}
+
+		fsync(stdout);
+		fflush(stdout);
+
+		fsync(stdin);
+		fflush(stdin);
 
 		memset(buffer , 0 , MAX_CHARS);
 		printf( "\n? " );
@@ -247,7 +261,17 @@ void exec_processes( struct process *p )
 				//fflush(NULL);
 				//printf("Waiting for Child\n");
 				sleep( 1 );
+				close( out_pipe[1]);
+				close(in_pipe[0]);
+				
+				/*fsync(stdout);
+				fflush(stdout);
+
+				fsync(stdin);
+				fflush(stdin);*/
+								
 		}
+
 
 		proc = proc->prev_process;
 	}
@@ -256,9 +280,12 @@ void exec_processes( struct process *p )
 
 void do_child( struct process *p, int in_pipe[], int out_pipe[] )
 {
+	//printf("In Pipe: 1:%d 2:%d Out Pipe: 1:%d 2:%d\n" , in_pipe[0] , in_pipe[1] , out_pipe[0] , out_pipe[1]);
+
 	//remap FDs if necessary
 	if( p->prev_process != NULL && !p->prev_process->is_file )
 	{
+		close( in_pipe[1] );
 		close( 0 );
 		dup( in_pipe[ 0 ] );
 		close( in_pipe[ 0 ] );
@@ -266,11 +293,13 @@ void do_child( struct process *p, int in_pipe[], int out_pipe[] )
 
 	if( p->prev_process != NULL && p->prev_process->is_file )
 	{
+		printf("%s\n" , p->prev_process->name);
 		freopen( p->prev_process->name, "r", stdin );
 	}
 
 	if( p->next_process != NULL && !p->next_process->is_file )
 	{
+		close( out_pipe[0]);
 		close( 1 );
 		dup( out_pipe[ 1 ] );
 		close( out_pipe[ 1 ] );
@@ -278,7 +307,8 @@ void do_child( struct process *p, int in_pipe[], int out_pipe[] )
 
 	if( p->next_process != NULL && p->next_process->is_file )
 	{
-		freopen( p->next_process->name, "w", stdout );
+		printf("%s\n" , p->next_process->name);
+		freopen( p->next_process->name, "a", stdout );
 	}
 
 
@@ -288,6 +318,9 @@ void do_child( struct process *p, int in_pipe[], int out_pipe[] )
 	{
 //		printf( "Arg#%d: %s\n", i, p->args[i] );
 	}*/
+	
+	printf("In Pipe: 0:%d 1:%d Out Pipe: 0:%d 1:%d\n" , in_pipe[0] , in_pipe[1] , out_pipe[0] , out_pipe[1]);
+
 	execvp( p->name, p->args );
 	perror( "EXEC" );
 	_exit( EXIT_FAILURE );
